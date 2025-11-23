@@ -9,20 +9,21 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/kovi121/mahesh-alc.git'
             }
         }
-    
+
         stage('Run Ansible Playbook') {
             steps {
-                    sh '''
-                        echo "Running Ansible..."
-                        ansible-playbook -i inventory/hosts playbooks/web.yml
-                    '''
+                sh '''
+                    echo "Running Ansible..."
+                    ansible-playbook -i inventory/hosts playbooks/web.yml
+                '''
             }
         }
+
         stage('Validate Deployment') {
             steps {
                 script {
-                    // Replace EC2_PUBLIC_IP
-                    def output = sh(script: "curl -s" http://3.110.108.206, returnStdout: true).trim()
+                    // Use single-quoted Groovy string for the sh script so you don't break quoting
+                    def output = sh(script: 'curl -sS http://3.110.108.206', returnStdout: true).trim()
 
                     if (!output.contains("Harika")) {
                         error("Webserver validation failed!")
